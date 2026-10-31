@@ -5,7 +5,7 @@ The public repository is [charrus/esphome-eyocean-lamp](https://github.com/charr
 ## Before making it public
 
 - Choose a license and add the appropriate license file. No license has been selected yet; public visibility is not the same as an open-source license.
-- Review all example values. Keep the runnable YAML examples at `remote_id: 0x0000` and `xor_key: 0x00` by default. The two known-working pairs in the documentation were explicitly supplied for publication; do not add other remote identities without their owner's permission.
+- Review all example values. Keep the runnable YAML examples at `remote_id: 0x0000` and `xor_key: 0x00` by default. The three user-reported known-working pairs in the documentation were explicitly supplied for publication; do not add other remote identities without their owner's permission.
 - Keep only placeholder credentials in `examples/secrets.yaml.example`. Never publish an actual `secrets.yaml`, API/OTA keys, Wi-Fi credentials, personal addresses, or unreviewed logs.
 - Check `.gitignore` excludes private secrets and build artifacts. Ignore rules do not remove files already tracked by Git.
 - Review every tracked file and any existing commit history for secrets. If credentials were previously committed, revoke/rotate them and clean the history before publishing; deleting the working-tree file alone is insufficient.

@@ -72,12 +72,13 @@ These pairs were reported working by the user and explicitly supplied for docume
 | --- | --- | --- | --- |
 | Remote 1 (6 buttons) | `0xC6FB` | `0x58` | User-reported working |
 | Remote 2 (6 buttons) | `0xB4B3` | `0x62` | User-reported working |
+| Remote 3 (6 buttons) | `0xC9CE` | `0x62` | User-reported working |
 
-Remote IDs and XOR keys are **per remote**, not universal model defaults. The user confirms that both local remotes have **six buttons**; model numbers were not supplied. These pairs have not been independently reproduced in this repository's tests. See [configuration snippets and usage notes](docs/protocol.md#known-working-remotes). Runnable examples retain zero-ID defaults; nothing is enabled automatically.
+Remote IDs and XOR keys are **per remote**, not universal model defaults. All three user-reported remotes have **six buttons**; model numbers were not supplied. These pairs have not been independently reproduced in this repository's tests. See [configuration snippets and usage notes](docs/protocol.md#known-working-remotes). Runnable examples retain zero-ID defaults; nothing is enabled automatically.
 
 ### XOR-key derivation hypothesis
 
-**This formula is correct for all three known six-button remotes, including both local user-reported remotes.** It does not match the known five-button remote. This supports a six-button-family hypothesis, not proof that every six-button model uses the same rule.
+**This formula is correct for all four known six-button remotes, including all three user-reported remotes.** It does not match the known five-button remote. This supports a six-button-family hypothesis, not proof that every six-button model uses the same rule.
 
 ```text
 xor_key = high_byte(remote_id) XOR low_byte(remote_id) XOR 0x65
@@ -91,6 +92,7 @@ Here, `high_byte = (remote_id >> 8) & 0xFF` and `low_byte = remote_id & 0xFF`.
 | `0xDCCF` | 6 | `0x76` | `0x76` | Yes | [Upstream known remotes](https://github.com/bl4ko/eyocean-ha/tree/main#decoded-remote-codes) |
 | `0xC6FB` | 6 | `0x58` | `0x58` | Yes | User-reported working |
 | `0xB4B3` | 6 | `0x62` | `0x62` | Yes | User-reported working |
+| `0xC9CE` | 6 | `0x62` | `0x62` | Yes | User-reported working |
 
 For example, `0xC6 XOR 0xFB XOR 0x65 = 0x58`. The upstream **five-button remote `0xBAD1`** instead satisfies `0xBA XOR 0xD1 XOR 0x25 = 0x4E`; the constants `0x25` and `0x65` differ by `0x40`.
 

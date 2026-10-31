@@ -39,16 +39,17 @@ The receive path exposes candidate decode information. For a candidate frame, a 
 
 Collect several distinct, intentionally pressed physical buttons and check that the identity and derived key stay consistent while commands change as expected. Separate background traffic from your remote. A repeated candidate by itself is not evidence of origin, correct modulation, or successful lamp control.
 
-No receive event changes `remote_id`, `xor_key`, or other substitutions. There is no automatic pairing, learning, raw recording, or playback workflow. Enter verified values manually in your local configuration. Publish remote identities only with their owner's permission; the two pairs below were explicitly supplied for documentation.
+No receive event changes `remote_id`, `xor_key`, or other substitutions. There is no automatic pairing, learning, raw recording, or playback workflow. Enter verified values manually in your local configuration. Publish remote identities only with their owner's permission; the three pairs below were explicitly supplied for documentation.
 
 ## Known working remotes
 
-Following the known-remotes table style in [bl4ko/eyocean-ha](https://github.com/bl4ko/eyocean-ha/tree/main#decoded-remote-codes), these are **user-reported working pairs**. The user confirms both local remotes have **six buttons**. Model numbers were not supplied, and these reports have not been independently reproduced as part of this repository's tests.
+Following the known-remotes table style in [bl4ko/eyocean-ha](https://github.com/bl4ko/eyocean-ha/tree/main#decoded-remote-codes), these are **user-reported working pairs**. All three user-reported remotes have **six buttons**. Model numbers were not supplied, and these reports have not been independently reproduced as part of this repository's tests.
 
 | Remote | Remote ID | XOR key | Source |
 | --- | --- | --- | --- |
 | Remote 1 (6 buttons) | `0xC6FB` | `0x58` | User-reported working; shared with permission |
 | Remote 2 (6 buttons) | `0xB4B3` | `0x62` | User-reported working; shared with permission |
+| Remote 3 (6 buttons) | `0xC9CE` | `0x62` | User-reported working; shared with permission |
 
 Remote 1 substitutions:
 
@@ -66,11 +67,19 @@ substitutions:
   xor_key: "0x62"
 ```
 
+Remote 3 substitutions:
+
+```yaml
+substitutions:
+  remote_id: "0xC9CE"
+  xor_key: "0x62"
+```
+
 Merge **one** pair into the existing `substitutions:` block of your local example; do not add a second block or combine values from different rows. These are per-remote identities, not universal EYOCEAN defaults or a pairing mechanism. Use your own captured pair unless you are controlling a lamp that already recognizes the selected remote. The XOR key is an independent per-remote value, not something this project derives from the remote ID. Night-light and timer command assignments can still vary by model.
 
 The runnable examples deliberately retain zero-ID defaults and require explicitly enabling **Allow RF control**; these documentation snippets do not change them.
 
-The [README's derivation hypothesis](../README.md#xor-key-derivation-hypothesis), `high_byte(remote_id) XOR low_byte(remote_id) XOR 0x65`, matches all three known six-button remotes, including both local pairs. The upstream five-button remote does not match. This is evidence for a family-specific rule, not a universal guarantee based only on button count; the firmware continues to use the explicitly configured key.
+The [README's derivation hypothesis](../README.md#xor-key-derivation-hypothesis), `high_byte(remote_id) XOR low_byte(remote_id) XOR 0x65`, matches all four known six-button remotes, including all three user-reported pairs. The upstream five-button remote does not match. This is evidence for a family-specific rule, not a universal guarantee based only on button count; the firmware continues to use the explicitly configured key.
 
 ## Transmission boundaries and state
 
