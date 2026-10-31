@@ -1,0 +1,32 @@
+# Copy examples/secrets.yaml.example to examples/secrets.yaml first.
+substitutions:
+  name: eyocean-t-embed
+  friendly_name: EYOCEAN T-Embed
+  remote_id: "0x0000"  # Replace with YOUR remote ID after decoding.
+  xor_key: "0x00"      # Replace with YOUR remote XOR key.
+
+packages:
+  hardware: !include ../packages/t-embed-cc1101.yaml
+  eyocean: !include ../packages/eyocean.yaml
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  min_version: 2026.10.1
+
+logger:
+  hardware_uart: USB_SERIAL_JTAG
+  level: INFO
+
+api:
+  encryption:
+    key: !secret api_key
+
+ota:
+  - platform: esphome
+    encryption:
+      key: !secret api_key
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password

@@ -1,0 +1,13 @@
+# Fixed 433.92 MHz CC1101 endpoints for Home Assistant RF connectivity.
+# Proxy TX is separate from the Allow RF control lamp-button guard.
+radio_frequency:
+  - platform: ir_rf_proxy
+    id: rf_proxy_tx
+    name: "433MHz RF Transmitter"
+    frequency: 433.92MHz
+    remote_transmitter_id: rf_tx
+  - platform: ir_rf_proxy
+    id: rf_proxy_rx
+    name: "433MHz RF Receiver"
+    frequency: 433.92MHz
+    remote_receiver_id: rf_rx

@@ -1,0 +1,13 @@
+# Credentials and generated firmware
+secrets.yaml
+**/secrets.yaml
+.esphome/
+**/.esphome/
+.pio/
+**/.pio/
+.venv/
+__pycache__/
+*.pyc
+*.bin
+*.elf
+*.log

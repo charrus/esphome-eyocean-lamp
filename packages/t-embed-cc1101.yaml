@@ -1,0 +1,107 @@
+# LILYGO T-Embed CC1101 hardware ONLY; verify your board variant.
+esphome:
+  min_version: 2026.10.1
+  on_boot:
+    priority: 1050
+    then:
+      - output.turn_on: lcd_cs
+      - output.turn_on: sd_cs
+      - output.turn_on: nrf_cs
+      - output.turn_off: nrf_ce
+      - output.turn_on: antenna_sw1
+      - output.turn_on: antenna_sw0
+      - output.turn_on: power_enable
+      - lambda: delay(10);
+esp32:
+  board: esp32-s3-devkitc-1
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+    # advanced:
+    #   flash_chip: generic
+output:
+  - platform: gpio
+    id: lcd_cs
+    pin:
+      number: GPIO41
+      allow_other_uses: true
+    setup_priority: 1100
+  - platform: gpio
+    id: sd_cs
+    pin: GPIO13
+    setup_priority: 1100
+  - platform: gpio
+    id: nrf_cs
+    pin: GPIO44
+    setup_priority: 1100
+  - platform: gpio
+    id: nrf_ce
+    pin: GPIO43
+    setup_priority: 1100
+  - platform: gpio
+    id: antenna_sw1
+    pin: GPIO47
+    setup_priority: 1100
+  - platform: gpio
+    id: antenna_sw0
+    pin: GPIO48
+    setup_priority: 1100
+  - platform: gpio
+    id: power_enable
+    pin: GPIO15
+    setup_priority: 1100
+  - platform: gpio
+    id: lcd_backlight
+    pin: GPIO21
+light:
+  - platform: binary
+    id: screen_backlight
+    name: Screen backlight
+    output: lcd_backlight
+    restore_mode: ALWAYS_ON
+psram:
+  mode: octal
+  speed: 80MHz
+spi:
+  clk_pin: GPIO11
+  mosi_pin: GPIO9
+  miso_pin: GPIO10
+font:
+  - file: "gfonts://Roboto Mono"
+    id: screen_small
+    size: 14
+  - file: "gfonts://Roboto Mono"
+    id: screen_large
+    size: 20
+display:
+  - platform: mipi_spi
+    id: lcd
+    model: ST7789V
+    cs_pin:
+      number: GPIO41
+      allow_other_uses: true
+    dc_pin: GPIO16
+    dimensions:
+      width: 170
+      height: 320
+      offset_width: 35
+      offset_height: 0
+    rotation: 270
+    invert_colors: true
+    color_order: RGB
+    data_rate: 20MHz
+    update_interval: 1s
+    lambda: |-
+      it.fill(Color(0, 0, 0));
+      it.print(6, 2, id(screen_small), Color(70, 200, 255), "EYOCEAN | 433.92 MHz");
+      if (id(has_decoded)) {
+        it.printf(6, 25, id(screen_large), Color(255, 255, 255), "remote_id: 0x%04X", (unsigned)id(decoded_remote_id));
+        it.printf(6, 50, id(screen_large), Color(255, 255, 255), "xor_key:   0x%02X", (unsigned)id(decoded_xor_key));
+        it.printf(6, 78, id(screen_small), Color(255, 200, 80), "Candidate cmd: 0x%02X", (unsigned)id(decoded_command));
+        it.printf(6, 99, id(screen_small), Color(160, 160, 160), "Frames: %u  Age: %us", (unsigned)id(decoded_count), (unsigned)((millis() - id(decoded_ms)) / 1000));
+      } else {
+        it.print(6, 30, id(screen_large), Color(255, 255, 255), "Waiting for RF decode");
+        it.print(6, 62, id(screen_small), Color(160, 160, 160), "Press an original lamp remote");
+        it.print(6, 85, id(screen_small), Color(255, 200, 80), "No decoded identity yet");
+      }
+      it.printf(6, 146, id(screen_small), Color(160, 160, 160), "RF control: %s", id(tx_enabled).state ? "ON" : "OFF");

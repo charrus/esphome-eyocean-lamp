@@ -1,0 +1,182 @@
+# Shared EYOCEAN command controls and candidate RF decoder.
+# No recording/replay and no automatic identity learning.
+substitutions:
+  remote_id: "0x0000"
+  xor_key: "0x00"
+  cmd_night_light: "0x41"
+  cmd_timer: "0x4D"
+  cc1101_cs_pin: GPIO12
+  rf_rx_pin: GPIO38
+  rf_tx_pin: GPIO3
+
+cc1101:
+  id: radio
+  cs_pin: ${cc1101_cs_pin}
+  frequency: 433.92MHz
+  modulation_type: ASK/OOK
+  symbol_rate: 40000
+  output_power: 0
+remote_receiver:
+  id: rf_rx
+  pin: ${rf_rx_pin}
+  rmt_symbols: 192
+  filter: 50us
+  idle: 10ms
+  buffer_size: 8kb
+  dump: raw
+  on_raw:
+    then:
+      - lambda: |-
+          for (size_t start = 0; start + 63 < x.size(); ++start) {
+            if (start != 0 && x[start - 1] > -4000) continue;
+            uint32_t code = 0;
+            bool valid = true;
+            for (size_t bit = 0; bit < 32; ++bit) {
+              int32_t high = x[start + bit * 2];
+              int32_t low = -x[start + bit * 2 + 1];
+              bool zero = high >= 125 && high <= 400 && low >= 500 && low <= 1000;
+              bool one = high >= 500 && high <= 1000 && low >= 125 && low <= 400;
+              if (!zero && !one) { valid = false; break; }
+              code = (code << 1) | (one ? 1U : 0U);
+            }
+            unsigned command = (code >> 8) & 0xFF;
+            bool known = command == 0x51 || command == 0x5B || command == 0x5A || command == 0x49 || command == 0x41 || command == 0x4D;
+            if (valid && known) {
+              id(decoded_remote_id) = code >> 16;
+              id(decoded_xor_key) = command ^ (code & 0xFF);
+              id(decoded_command) = command;
+              id(decoded_count)++;
+              id(decoded_ms) = millis();
+              id(has_decoded) = true;
+              ESP_LOGI("eyocean", "Candidate frame=0x%08X remote_id=0x%04X xor_key=0x%02X command=0x%02X",
+                       (unsigned) code, (unsigned)(code >> 16), command ^ (unsigned)(code & 0xFF), command);
+              break;
+            }
+          }
+remote_transmitter:
+  id: rf_tx
+  pin: ${rf_tx_pin}
+  carrier_duty_percent: 100%
+  rmt_symbols: 64
+  non_blocking: true
+  on_transmit:
+    - cc1101.begin_tx: radio
+  on_complete:
+    - cc1101.begin_rx: radio
+switch:
+  - platform: template
+    id: tx_enabled
+    name: Allow RF control
+    entity_category: config
+    optimistic: true
+    restore_mode: ALWAYS_OFF
+globals:
+  - id: has_decoded
+    type: bool
+    restore_value: false
+    initial_value: 'false'
+  - id: decoded_remote_id
+    type: uint16_t
+    restore_value: false
+    initial_value: '0'
+  - id: decoded_xor_key
+    type: uint8_t
+    restore_value: false
+    initial_value: '0'
+  - id: decoded_command
+    type: uint8_t
+    restore_value: false
+    initial_value: '0'
+  - id: decoded_count
+    type: uint32_t
+    restore_value: false
+    initial_value: '0'
+  - id: decoded_ms
+    type: uint32_t
+    restore_value: false
+    initial_value: '0'
+text_sensor:
+  - platform: template
+    name: Decoded remote ID
+    update_interval: 1s
+    lambda: |-
+      if (!id(has_decoded)) return {"Waiting"};
+      return {str_sprintf("0x%04X", (unsigned)id(decoded_remote_id))};
+  - platform: template
+    name: Decoded XOR key
+    update_interval: 1s
+    lambda: |-
+      if (!id(has_decoded)) return {"Waiting"};
+      return {str_sprintf("0x%02X", (unsigned)id(decoded_xor_key))};
+script:
+  - id: send_command
+    mode: single
+    parameters:
+      command: int
+    then:
+      - if:
+          condition:
+            lambda: return id(tx_enabled).state && ${remote_id} != 0;
+          then:
+            - remote_transmitter.transmit_raw:
+                transmitter_id: rf_tx
+                code: !lambda |-
+                  const uint8_t cmd = command & 0xFF;
+                  const uint32_t code = (uint32_t(${remote_id}) << 16) | (uint32_t(cmd) << 8) | (cmd ^ ${xor_key});
+                  std::vector<int32_t> raw{250, -6250};
+                  for (int bit = 31; bit >= 0; --bit) {
+                    const bool one = (code >> bit) & 1U;
+                    raw.push_back(one ? 750 : 250);
+                    raw.push_back(one ? -250 : -750);
+                  }
+                  return raw;
+                repeat:
+                  times: 8
+                  wait_time: 0us
+          else:
+            - logger.log:
+                level: WARN
+                format: "RF blocked: configure your remote ID and enable Allow RF control."
+button:
+  - platform: template
+    name: Power toggle
+    on_press:
+      - script.execute:
+          id: send_command
+          command: 0x51
+  - platform: template
+    name: Brightness cycle
+    on_press:
+      - script.execute:
+          id: send_command
+          command: 0x5B
+  - platform: template
+    name: Color temperature cycle
+    on_press:
+      - script.execute:
+          id: send_command
+          command: 0x5A
+  - platform: template
+    name: Reading mode
+    on_press:
+      - script.execute:
+          id: send_command
+          command: 0x49
+  - platform: template
+    name: Night light
+    on_press:
+      - script.execute:
+          id: send_command
+          command: ${cmd_night_light}
+  - platform: template
+    name: Timer
+    on_press:
+      - script.execute:
+          id: send_command
+          command: ${cmd_timer}
+  - platform: restart
+    name: Restart
+    entity_category: diagnostic
+binary_sensor:
+  - platform: status
+    name: Online

@@ -1,0 +1,44 @@
+# Illustrative ESP32-S3 + external 3.3V CC1101 wiring, NOT universal.
+substitutions:
+  name: eyocean-esp32s3
+  friendly_name: EYOCEAN ESP32-S3
+  remote_id: "0x0000"
+  xor_key: "0x00"
+  cc1101_cs_pin: GPIO12
+  rf_rx_pin: GPIO38   # CC1101 GDO2
+  rf_tx_pin: GPIO3    # CC1101 GDO0; review boot-strapping constraints.
+
+packages:
+  eyocean: !include ../packages/eyocean.yaml
+
+esp32:
+  board: esp32-s3-devkitc-1
+  framework:
+    type: esp-idf
+
+spi:
+  clk_pin: GPIO11
+  mosi_pin: GPIO9
+  miso_pin: GPIO10
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  min_version: 2026.10.1
+
+logger:
+  hardware_uart: USB_SERIAL_JTAG
+  level: INFO
+
+api:
+  encryption:
+    key: !secret api_key
+
+ota:
+  - platform: esphome
+    encryption:
+      key: !secret api_key
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password

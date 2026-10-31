@@ -1,0 +1,4 @@
+# WARNING: proxy TX bypasses the lamp's Allow RF control switch.
+packages:
+  base: !include t-embed-cc1101.yaml
+  rf_proxy: !include ../packages/rf-proxy.yaml
