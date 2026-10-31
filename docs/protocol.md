@@ -43,14 +43,14 @@ No receive event changes `remote_id`, `xor_key`, or other substitutions. There i
 
 ## Known working remotes
 
-Following the known-remotes table style in [bl4ko/eyocean-ha](https://github.com/bl4ko/eyocean-ha/tree/main#decoded-remote-codes), these are **user-reported working pairs**. All four user-reported remotes have **six buttons**. Model numbers were not supplied, and these reports have not been independently reproduced as part of this repository's tests.
+Following the known-remotes table style in [bl4ko/eyocean-ha](https://github.com/bl4ko/eyocean-ha/tree/main#decoded-remote-codes), these are **reported working pairs**, with upstream issue sources linked where available. All four listed remotes have **six buttons**. The linked issues provide additional model details for Remotes 3 and 4; these reports have not been independently reproduced as part of this repository's tests.
 
 | Remote | Remote ID | XOR key | Source |
 | --- | --- | --- | --- |
 | Remote 1 (6 buttons) | `0xC6FB` | `0x58` | User-reported working; shared with permission |
 | Remote 2 (6 buttons) | `0xB4B3` | `0x62` | User-reported working; shared with permission |
-| Remote 3 (6 buttons) | `0xC9CE` | `0x62` | User-reported working; shared with permission |
-| Remote 4 (6 buttons) | `0xE054` | `0x51` | User-reported working; shared with permission |
+| Remote 3 (6 buttons) | `0xC9CE` | `0x62` | [bl4ko/eyocean-ha #6](https://github.com/bl4ko/eyocean-ha/issues/6) |
+| Remote 4 (6 buttons) | `0xE054` | `0x51` | [bl4ko/eyocean-ha #7](https://github.com/bl4ko/eyocean-ha/issues/7) |
 
 Remote 1 substitutions:
 
