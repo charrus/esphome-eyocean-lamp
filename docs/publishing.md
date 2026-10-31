@@ -4,7 +4,7 @@ The public repository is [charrus/esphome-eyocean-lamp](https://github.com/charr
 
 ## Before making it public
 
-- Choose a license and add the appropriate license file. No license has been selected yet; public visibility is not the same as an open-source license.
+- This project uses the MIT License. Retain `LICENSE` and its copyright and permission notices when publishing copies or substantial portions of the project.
 - Review all example values. Keep the runnable YAML examples at `remote_id: 0x0000` and `xor_key: 0x00` by default. The four user-reported known-working pairs in the documentation were explicitly supplied for publication; do not add other remote identities without their owner's permission.
 - Keep only placeholder credentials in `examples/secrets.yaml.example`. Never publish an actual `secrets.yaml`, API/OTA keys, Wi-Fi credentials, personal addresses, or unreviewed logs.
 - Check `.gitignore` excludes private secrets and build artifacts. Ignore rules do not remove files already tracked by Git.
@@ -40,12 +40,12 @@ git ls-files
 Stage only reviewed public files. For the initial project layout:
 
 ```sh
-git add README.md docs packages examples tests .github .gitignore requirements-dev.txt
+git add README.md LICENSE docs packages examples tests .github .gitignore requirements-dev.txt
 git diff --cached --stat
 git diff --cached
 ```
 
-Review the complete staged diff before committing. Add a selected license file separately if you created one. Do not use blanket staging until you have verified ignore rules and untracked files.
+Review the complete staged diff before committing. Include `LICENSE` when preparing a new copy of the repository. Do not use blanket staging until you have verified ignore rules and untracked files.
 
 ```sh
 git commit -m "Prepare EYOCEAN ESPHome lamp configuration"

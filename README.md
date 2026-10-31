@@ -122,4 +122,4 @@ Either keep the repository hierarchy and use the CLI commands above, or copy you
 
 Protocol reference: [bl4ko/eyocean-ha](https://github.com/bl4ko/eyocean-ha). Vendor pin reference: [LILYGO T-Embed CC1101 utilities.h](https://github.com/Xinyuan-LilyGO/T-Embed-CC1101/blob/master/examples/utilities.h). These references are attribution and compatibility context, not a claim that upstream code was copied or that its license covers this repository.
 
-A license has not yet been selected. Public visibility alone does not grant an open-source license; choose and add an appropriate license before describing this project as open source.
+This project is licensed under the [MIT License](LICENSE). Copyright (c) 2026 Charlie Rusbridger. Referenced third-party projects retain their own licenses and copyright notices.
