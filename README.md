@@ -73,12 +73,13 @@ These pairs were reported working by the user and explicitly supplied for docume
 | Remote 1 (6 buttons) | `0xC6FB` | `0x58` | User-reported working |
 | Remote 2 (6 buttons) | `0xB4B3` | `0x62` | User-reported working |
 | Remote 3 (6 buttons) | `0xC9CE` | `0x62` | User-reported working |
+| Remote 4 (6 buttons) | `0xE054` | `0x51` | User-reported working |
 
-Remote IDs and XOR keys are **per remote**, not universal model defaults. All three user-reported remotes have **six buttons**; model numbers were not supplied. These pairs have not been independently reproduced in this repository's tests. See [configuration snippets and usage notes](docs/protocol.md#known-working-remotes). Runnable examples retain zero-ID defaults; nothing is enabled automatically.
+Remote IDs and XOR keys are **per remote**, not universal model defaults. All four user-reported remotes have **six buttons**; model numbers were not supplied. These pairs have not been independently reproduced in this repository's tests. See [configuration snippets and usage notes](docs/protocol.md#known-working-remotes). Runnable examples retain zero-ID defaults; nothing is enabled automatically.
 
 ### XOR-key derivation hypothesis
 
-**This formula is correct for all four known six-button remotes, including all three user-reported remotes.** It does not match the known five-button remote. This supports a six-button-family hypothesis, not proof that every six-button model uses the same rule.
+**This formula matches four of the five known six-button remotes, but is not a general six-button rule.** The six-button `0xE054` remote is a counterexample: its reported key is `0x51`, while the formula predicts `0xD1`. The known five-button remote also does not match.
 
 ```text
 xor_key = high_byte(remote_id) XOR low_byte(remote_id) XOR 0x65
@@ -93,10 +94,13 @@ Here, `high_byte = (remote_id >> 8) & 0xFF` and `low_byte = remote_id & 0xFF`.
 | `0xC6FB` | 6 | `0x58` | `0x58` | Yes | User-reported working |
 | `0xB4B3` | 6 | `0x62` | `0x62` | Yes | User-reported working |
 | `0xC9CE` | 6 | `0x62` | `0x62` | Yes | User-reported working |
+| `0xE054` | 6 | `0x51` | `0xD1` | No | User-reported working |
 
 For example, `0xC6 XOR 0xFB XOR 0x65 = 0x58`. The upstream **five-button remote `0xBAD1`** instead satisfies `0xBA XOR 0xD1 XOR 0x25 = 0x4E`; the constants `0x25` and `0x65` differ by `0x40`.
 
-The observed split is consistent with different constants for six-button and five-button variants, but one five-button example is not enough to establish a general five-button rule. Do not discard the reported `0x4E` value or treat `0x0E` as a correction. More independent pairs from both button-count groups are needed to establish whether button count reliably identifies the derivation constant.
+The six-button `0xE054` pair instead satisfies `0xE0 XOR 0x54 XOR 0xE5 = 0x51`; its reported key and the `0x65` formula's prediction differ by `0x80`. Preserve the reported `0x51`, not the predicted `0xD1`.
+
+Button count alone does not identify the derivation constant in the available data. The five-button `0xBAD1` and six-button `0xE054` reports require different constants from the other four remotes. More independent pairs and full-frame captures are needed to investigate a more general relationship. Do not discard reported keys or treat the formula's predictions as corrections.
 
 **Keep `xor_key` explicitly configured.** This hypothesis is not used by the firmware. For a correctly decoded full frame, extract the actual key as `command_byte XOR final_byte` and check it across several distinct original-remote button presses. A mathematical fit is not physical RF verification or authentication.
 
